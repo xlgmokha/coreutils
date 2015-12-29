@@ -1,10 +1,28 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 int main(int argc, char *argv[])
 {
-  FILE *file = fopen(argv[1], "r");
+  int choice;
+  int lines_to_print = 10;
+  char *ep;
+
+  while ( (choice = getopt(argc, argv, "n:")) != -1 ) {
+    switch(choice) {
+      case 'n':
+        lines_to_print = strtol(optarg, &ep, 10);
+        break;
+      case '?':
+      default:
+        break;
+    }
+  }
+  argc -= optind;
+  argv += optind;
+
+  FILE *file = fopen(argv[0], "r");
   if (file) {
-    int lines_to_print = 10;
     int character; 
 
     while( (character = getc(file)) != EOF ) {
