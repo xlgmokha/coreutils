@@ -1,21 +1,39 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-int main(int argc, const char *argv[])
+int main(int argc, char *argv[])
 {
-  FILE *file = fopen(argv[1], "r");
+  int choice;
+  int lines_to_print = 10;
+  char *ep;
+
+  while ( (choice = getopt(argc, argv, "n:")) != -1 ) {
+    switch(choice) {
+      case 'n':
+        lines_to_print = strtol(optarg, &ep, 10);
+        break;
+      case '?':
+      default:
+        break;
+    }
+  }
+  argc -= optind;
+  argv += optind;
+
+  FILE *file = fopen(argv[0], "r");
   if (file) {
-    int current_position = ftell(file);
+    int current_position;
     int character;
     int lines_found = 0;
-    int lines_to_print = 10;
 
     fseek(file, 0L, SEEK_END);
 
     current_position = ftell(file);
     while(--current_position >= 0) {
       fseek(file, current_position, SEEK_SET);
-      if (getc(file) == '\n' && ++lines_found == lines_to_print) {
+      if (getc(file) == '\n' && (++lines_found) - 1 == lines_to_print) {
         break;
       }
     }
@@ -27,4 +45,5 @@ int main(int argc, const char *argv[])
     fclose(file);
     return 0;
   }
+  return 1;
 }
