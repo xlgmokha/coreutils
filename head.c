@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
   FILE *file = fopen(argv[0], "r");
   if (file) {
-    int character; 
+    int character;
 
     while( (character = getc(file)) != EOF ) {
       putchar(character);
