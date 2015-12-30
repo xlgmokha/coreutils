@@ -10,35 +10,33 @@
 #else
 #  include <openssl/md5.h>
 #endif
+#define CHUNK 512
 
 int main(int argc, const char *argv[])
 {
-	const char *filename = argv[1];
-  int length = 4;
-	MD5_CTX c;
-	unsigned char digest[16];
-	char *md5 = (char*)malloc(33);
-  char *str = "blah";
+  MD5_CTX context;
+  unsigned char digest[16];
+  char *md5 = (char*)malloc(33);
+  const char *filename = argv[1];
+  FILE *file = fopen(filename, "r");
+  char buffer[CHUNK];
+  size_t nread;
 
-	MD5_Init(&c);
+  if (file) {
+    MD5_Init(&context);
 
-	while (length > 0) {
-		if (length > 512) {
-			MD5_Update(&c, str, 512);
-		} else {
-			MD5_Update(&c, str, length);
-		}
-		length -= 512;
-		str += 512;
-	}
+    while( (nread = fread(buffer, 1, sizeof(buffer), file)) > 0) {
+      MD5_Update(&context, buffer, nread);
+    }
 
-	MD5_Final(digest, &c);
+    MD5_Final(digest, &context);
+    for (int i = 0; i < 16; ++i) {
+      sprintf(&md5[i*2], "%02x", (unsigned int)digest[i]);
+    }
 
-	for (int i = 0; i < 16; ++i) {
-		snprintf(&(md5[i*2]), 16*2, "%02x", (unsigned int)digest[i]);
-	}
-
-  printf("%s (%s) = %s\n", "MD5", filename, md5);
-	return 0;
+    printf("%s (%s) = %s\n", "MD5", filename, md5);
+    return 0;
+  }
+  return 1;
 }
 
